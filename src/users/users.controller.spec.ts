@@ -14,7 +14,12 @@ describe('UsersController', () => {
     controller = module.get<UsersController>(UsersController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('findAll', () => {
+    it('should return an array of cats', async () => {
+      const result = ['test'];
+      jest.spyOn(controller, 'findAll').mockImplementation(() => result);
+
+      expect(await controller.findAll()).toBe(result);
+    });
   });
 });

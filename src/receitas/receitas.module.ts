@@ -8,5 +8,6 @@ import { Receitas } from '../receitas/entities/receita.entity';
   imports: [TypeOrmModule.forFeature([Receitas])],
   providers: [ReceitaService],
   controllers: [ReceitaController],
+  exports: [ReceitaService],
 })
 export class ReceitaModule {}

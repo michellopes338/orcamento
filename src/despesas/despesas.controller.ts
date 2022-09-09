@@ -29,8 +29,17 @@ export class DespesasController {
     createDespesaDto.categoria = await this.categoriasService.findOne({
       label: createDespesaDto.categoria ? createDespesaDto.categoria : 'Outras',
     });
+    const [dia, mes, ano] = String(createDespesaDto.data).split('/');
 
-    console.log(createDespesaDto);
+    const anoFixed = ano.length < 4 ? `20${ano}` : ano;
+
+    createDespesaDto.data = new Date(
+      Number(anoFixed),
+      Number(mes) - 1,
+      Number(dia),
+    );
+
+    createDespesaDto.descricao = createDespesaDto.descricao.toLowerCase();
 
     const nova_despesa = await this.despesasService
       .create(createDespesaDto)
@@ -39,6 +48,19 @@ export class DespesasController {
       });
 
     return nova_despesa;
+  }
+
+  @Get(':ano/:mes')
+  async getByData(@Param('ano') ano: number, @Param('mes') mes: number) {
+    const inicio_periodo: Date = new Date(ano, mes - 1, 1);
+    const fim_periodo: Date = new Date(ano, mes, 0);
+
+    const receitas = this.despesasService.findByData(
+      inicio_periodo,
+      fim_periodo,
+    );
+
+    return receitas;
   }
 
   @Get('/all')
@@ -51,6 +73,15 @@ export class DespesasController {
     });
 
     return despesas;
+  }
+
+  @Get()
+  async findByDescricao(@Query('descricao') descricao: string) {
+    const despesa = this.despesasService.findByDescricao(
+      descricao.toLowerCase(),
+    );
+
+    return despesa;
   }
 
   @Get(':id')

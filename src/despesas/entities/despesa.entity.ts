@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-@Unique('uma_despesa_por_mes', ['descricao', 'mes'])
+@Unique('uma_despesa_por_mes', ['descricao', 'data'])
 export class Despesa {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -21,7 +21,7 @@ export class Despesa {
   valor: number;
 
   @Column()
-  mes: string;
+  data: Date;
 
   @ManyToOne(() => Categoria, (categoria) => categoria.id, {
     nullable: false,

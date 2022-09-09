@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsDecimal, IsAlpha, IsEmpty } from 'class-validator';
+import { IsNotEmpty, IsDecimal, IsEmpty } from 'class-validator';
 
 export class CreateReceitaDto {
   @IsEmpty()
@@ -12,6 +12,5 @@ export class CreateReceitaDto {
   valor: number;
 
   @IsNotEmpty()
-  @IsAlpha()
-  mes_da_receita: string;
+  data: string | Date;
 }

@@ -12,6 +12,5 @@ export class UpdateReceitaDto {
   valor: number;
 
   @IsOptional()
-  @IsAlpha()
-  mes_da_receita: string;
+  data: string;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Receitas } from '../receitas/entities/receita.entity';
-import { Like, Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 import { CreateReceitaDto, IdReceitaDto, UpdateReceitaDto } from './dto';
 
 @Injectable()
@@ -18,6 +18,26 @@ export class ReceitaService {
     return await this.receitaModel.find({
       take: limit,
       skip: offset,
+    });
+  }
+
+  getTotalByMes(inicio_periodo: Date, fim_periodo: Date) {
+    return this.receitaModel
+      .createQueryBuilder()
+      .select('SUM(valor) AS total')
+      .where({ data: Between(inicio_periodo, fim_periodo) })
+      .getRawOne();
+  }
+
+  async getReceitasByData(
+    inicio_periodo: Date,
+    fim_periodo: Date,
+  ): Promise<Receitas[]> {
+    // retorna todas as receitas dentro de um mês
+    return await this.receitaModel.find({
+      where: {
+        data: Between(inicio_periodo, fim_periodo),
+      },
     });
   }
 

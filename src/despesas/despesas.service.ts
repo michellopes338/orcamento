@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 import { CreateDespesaDto } from './dto/create-despesa.dto';
 import { ScopeDto } from './dto/despesas-util.dto';
 import { UpdateDespesaDto } from './dto/update-despesa.dto';
@@ -25,6 +25,23 @@ export class DespesasService {
     });
   }
 
+  async getTotalByMes(inicio_periodo: Date, fim_periodo: Date) {
+    return await this.despesaModel
+      .createQueryBuilder()
+      .select('SUM(valor) AS total')
+      .where({ data: Between(inicio_periodo, fim_periodo) })
+      .getRawOne();
+  }
+
+  async getTotalByCategoria(inicio_periodo: Date, fim_periodo: Date) {
+    return await this.despesaModel
+      .createQueryBuilder()
+      .select('descricao, SUM(valor)')
+      .where({ data: Between(inicio_periodo, fim_periodo) })
+      .groupBy('descricao')
+      .getRawMany();
+  }
+
   async findOne(id: string): Promise<Despesa> {
     return this.despesaModel.findOne({
       where: { id: id },
@@ -32,6 +49,24 @@ export class DespesasService {
         categoria: true,
       },
       relationLoadStrategy: 'join',
+    });
+  }
+
+  async findByData(inicio_periodo: Date, fim_periodo: Date) {
+    return this.despesaModel.find({
+      where: {
+        data: Between(inicio_periodo, fim_periodo),
+      },
+      relationLoadStrategy: 'join',
+      relations: {
+        categoria: true,
+      },
+    });
+  }
+
+  async findByDescricao(descricao: string): Promise<Despesa[]> {
+    return this.despesaModel.findBy({
+      descricao: Like(`%${descricao}%`),
     });
   }
 

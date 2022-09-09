@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-@Unique('uma_descricao_por_mes', ['descricao', 'mes_da_receita'])
+@Unique('uma_descricao_por_mes', ['descricao', 'data'])
 export class Receitas {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -19,8 +19,8 @@ export class Receitas {
   @Column('decimal', { precision: 7, scale: 2 })
   valor: number;
 
-  @Column()
-  mes_da_receita: string;
+  @Column('timestamp with time zone')
+  data: Date;
 
   @CreateDateColumn()
   created_at: Date;

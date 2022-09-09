@@ -1,10 +1,4 @@
-import {
-  IsAlpha,
-  IsDecimal,
-  IsEmpty,
-  IsNotEmpty,
-  IsOptional,
-} from 'class-validator';
+import { IsDecimal, IsEmpty, IsNotEmpty, IsOptional } from 'class-validator';
 import { Categoria } from '../../categorias/entities/categoria.entity';
 
 export class CreateDespesaDto {
@@ -19,8 +13,7 @@ export class CreateDespesaDto {
   valor: number;
 
   @IsNotEmpty()
-  @IsAlpha()
-  mes: string;
+  data: Date | string;
 
   @IsOptional()
   categoria: Categoria;

@@ -9,6 +9,8 @@ import {
   Param,
   Put,
   Delete,
+  ParseEnumPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateReceitaDto, IdReceitaDto, UpdateReceitaDto } from './dto';
 import { Receitas } from '../receitas/entities/receita.entity';
@@ -53,6 +55,19 @@ export class ReceitaController {
     }
   }
 
+  @Get(':ano/:mes')
+  async getReceitaByData(@Param('ano') ano: number, @Param('mes') mes: number) {
+    const inicio_periodo: Date = new Date(ano, mes - 1, 1);
+    const fim_periodo: Date = new Date(ano, mes, 0);
+
+    const receitas = this.receitaService.getReceitasByData(
+      inicio_periodo,
+      fim_periodo,
+    );
+
+    return receitas;
+  }
+
   @Get()
   async findByDescricao(@Query('descricao') descricao: string) {
     const despesa = this.receitaService.findByDescricao(
@@ -64,49 +79,16 @@ export class ReceitaController {
 
   @Post()
   async InsertReceita(@Body() receita: CreateReceitaDto): Promise<Receitas> {
-    try {
-      receita.descricao = receita.descricao.toLowerCase();
-      const nova_receita = await this.receitaService.insertReceita(receita);
+    receita.descricao = receita.descricao.toLowerCase();
+    const [dia, mes, ano] = String(receita.data).split('/');
 
-      return nova_receita;
-    } catch (error) {
-      if (error.name === 'QueryFailedError') {
-        throw new HttpException(
-          {
-            status: HttpStatus.BAD_REQUEST,
-            error: 'receita duplicada',
-            message: error.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      } else {
-        throw new HttpException(
-          {
-            status: HttpStatus.INTERNAL_SERVER_ERROR,
-            error: 'algo deu errado, tente novamente mais tarde',
-            message: error.message,
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
+    const anoFixed = ano.length < 4 ? `20${ano}` : ano;
 
-  @Put(':id')
-  async updateReceita(
-    @Body() novas_infos: UpdateReceitaDto,
-    @Param() id: IdReceitaDto,
-  ): Promise<Receitas> {
-    return this.receitaService.updateReceita(novas_infos, id).catch((error) => {
-      console.log(error);
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'receita duplicada',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    });
+    receita.data = new Date(Number(anoFixed), Number(mes) - 1, Number(dia));
+
+    const nova_receita = await this.receitaService.insertReceita(receita);
+
+    return nova_receita;
   }
 
   @Delete(':id')
