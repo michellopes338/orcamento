@@ -17,6 +17,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { Public } from '../roles/roles.decorator';
+import { OutputUserDto } from './dto/output-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -28,10 +29,7 @@ export class UsersController {
     const new_user = await this.usersService
       .create(createUserDto)
       .catch((error) => {
-        console.log(error);
-        if (error instanceof HttpException) {
-          throw new InternalServerErrorException();
-        }
+        throw new InternalServerErrorException(error.detail);
       });
 
     return new_user;
@@ -39,8 +37,10 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.findOne(id);
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<OutputUserDto> {
+    return await this.usersService.findOne(id);
   }
 
   @Patch(':id')

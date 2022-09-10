@@ -11,7 +11,7 @@ export class CreateUserDto {
   password: string;
 
   @IsEmpty()
-  is_superuser: boolean;
+  is_superuser?: boolean;
 }
 
 export class CreateSuperuserDto {
